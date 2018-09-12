@@ -3,25 +3,22 @@
 function testConsole() {
   console.clear();
   console.log("Gif Array: ", initGifArray);
-  console.log("Current Button Index: ", buttonIndex);
 }
 
 var initGifArray = ["Steve Wilhite", "Computer Science"];
-var buttonIndex = 0;
 
 // function that iterates through array and creates a button for each item in array
 function createButtons(array) {
-  $.each(array, function() {
+  $.each(array, function(i) {
     var gifCategoryButton = $("<button>");
-    gifCategoryButton.attr("data-button-id", buttonIndex);
+    gifCategoryButton.attr("data-button-id", i);
     gifCategoryButton.addClass("gif-category-button m-2");
-    gifCategoryButton.text(array[buttonIndex]);
+    gifCategoryButton.text(array[i]);
     $("#button-holder").append(gifCategoryButton);
-    buttonIndex++;
   });
 }
 createButtons(initGifArray);
-testConsole();
+// testConsole();
 
 // click handler for add category button
 $("#add-category").on("click", function(event) {
@@ -35,7 +32,6 @@ $("#add-category").on("click", function(event) {
     // update DOM with new array contents: completely clear the div then re-pop
     $("#button-holder").empty();
     // reset button index
-    buttonIndex = 0;
     // create buttons
     createButtons(initGifArray);
     // clear text box
@@ -45,14 +41,14 @@ $("#add-category").on("click", function(event) {
     alert("Please enter a new category");
   }
 });
-
+$("#user-category-to-add").on("keydown", function(event) {
+  if (event.keyCode == 13) {
+    event.preventDefault();
+  }
+});
 // click handler for category buttons
 $(document).on("click", ".gif-category-button", function() {
-  testConsole();
-  console.log(
-    "You clicked the button with text of",
-    initGifArray[$(this).attr("data-button-id")]
-  );
+  // testConsole();
   // ajax request to giphy
   var queryString = initGifArray[$(this).attr("data-button-id")];
   var queryURL =
@@ -65,20 +61,19 @@ $(document).on("click", ".gif-category-button", function() {
   }).then(function(response) {
     // Iterate through response.data array to place urls in above arrays
     $.each(response.data, function(i) {
-      var staticImageUrl = response.data[i].images.original_still.url;
-      var animatedImageUrl = response.data[i].images.original.url;
-      var eachImageGetsItsOwnRow = $("<div>");
-      var andAColumnToo = $("<div>");
-      eachImageGetsItsOwnRow.addClass("row");
-      andAColumnToo.addClass("col-12");
+      var staticImageUrl = response.data[i].images.fixed_width_still.url;
+      var animatedImageUrl = response.data[i].images.fixed_width.url;
+      var eachImageGetsItsCol = $("<div>");
+      eachImageGetsItsCol.addClass("col-3 mb-2");
       // place images on DOM
       var staticImage = $("<img>");
-      staticImage.addClass("m-2 gif-option");
+      staticImage.addClass("gif-option");
       staticImage.attr("src", staticImageUrl);
       staticImage.attr("data-gif-url", animatedImageUrl);
-      eachImageGetsItsOwnRow.append(andAColumnToo);
-      andAColumnToo.append(staticImage);
-      $("#gif-holder").prepend(eachImageGetsItsOwnRow);
+      staticImage.attr("data-static-url", staticImageUrl);
+      staticImage.attr("data-animated", false);
+      eachImageGetsItsCol.append(staticImage);
+      $("#gif-holder").prepend(eachImageGetsItsCol);
       // staticUrls.push(staticImageUrl);
       // animatedUrls.push(animatedImageUrl);
     });
@@ -88,6 +83,11 @@ $(document).on("click", ".gif-category-button", function() {
 // click handler for individual gifs
 
 $(document).on("click", ".gif-option", function() {
-  var gurl = $(this).attr("src", $(this).data("gif-url"));
-  console.log(gurl);
+  if ($(this).data("animated") === false) {
+    $(this).attr("src", $(this).data("gif-url"));
+    $(this).data("animated", true);
+  } else {
+    $(this).attr("src", $(this).data("static-url"));
+    $(this).data("animated", false);
+  }
 });
