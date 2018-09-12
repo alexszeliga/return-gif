@@ -8,7 +8,6 @@ function testConsole() {
 
 var initGifArray = ["Steve Wilhite", "Computer Science"];
 var buttonIndex = 0;
-var gifIndex = 0;
 
 // function that iterates through array and creates a button for each item in array
 function createButtons(array) {
@@ -68,15 +67,18 @@ $(document).on("click", ".gif-category-button", function() {
     $.each(response.data, function(i) {
       var staticImageUrl = response.data[i].images.original_still.url;
       var animatedImageUrl = response.data[i].images.original.url;
-
+      var eachImageGetsItsOwnRow = $("<div>");
+      var andAColumnToo = $("<div>");
+      eachImageGetsItsOwnRow.addClass("row");
+      andAColumnToo.addClass("col-12");
+      // place images on DOM
       var staticImage = $("<img>");
-      staticImage.addClass("gif-option");
+      staticImage.addClass("m-2 gif-option");
       staticImage.attr("src", staticImageUrl);
       staticImage.attr("data-gif-url", animatedImageUrl);
-      staticImage.attr("data-gif-index", gifIndex);
-      $("#gif-holder").prepend(staticImage);
-      i++;
-      gifIndex++;
+      eachImageGetsItsOwnRow.append(andAColumnToo);
+      andAColumnToo.append(staticImage);
+      $("#gif-holder").prepend(eachImageGetsItsOwnRow);
       // staticUrls.push(staticImageUrl);
       // animatedUrls.push(animatedImageUrl);
     });
