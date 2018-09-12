@@ -61,10 +61,13 @@ $(document).on("click", ".gif-category-button", function() {
   }).then(function(response) {
     // Iterate through response.data array to place urls in above arrays
     $.each(response.data, function(i) {
+      console.log(response.data[i].rating);
       var staticImageUrl = response.data[i].images.fixed_width_still.url;
       var animatedImageUrl = response.data[i].images.fixed_width.url;
       var eachImageGetsItsCol = $("<div>");
-      eachImageGetsItsCol.addClass("col-3 mb-2");
+      var ratingElement = $("<p>");
+      ratingElement.text("Rating: " + response.data[i].rating);
+      eachImageGetsItsCol.addClass("col-sm mb-2");
       // place images on DOM
       var staticImage = $("<img>");
       staticImage.addClass("gif-option");
@@ -72,6 +75,7 @@ $(document).on("click", ".gif-category-button", function() {
       staticImage.attr("data-gif-url", animatedImageUrl);
       staticImage.attr("data-static-url", staticImageUrl);
       staticImage.attr("data-animated", false);
+      eachImageGetsItsCol.append(ratingElement);
       eachImageGetsItsCol.append(staticImage);
       $("#gif-holder").prepend(eachImageGetsItsCol);
       // staticUrls.push(staticImageUrl);
