@@ -8,6 +8,7 @@ function testConsole() {
 
 var initGifArray = ["Steve Wilhite", "Computer Science"];
 var buttonIndex = 0;
+var gifIndex = 0;
 
 // function that iterates through array and creates a button for each item in array
 function createButtons(array) {
@@ -27,28 +28,64 @@ testConsole();
 $("#add-category").on("click", function(event) {
   var userCategoryToAdd = $("#user-category-to-add");
   event.preventDefault();
-  // TODO: Confirm there's text in the box.
+  // Confirm there's text in the box.
   if (userCategoryToAdd.val().trim() !== "") {
     // add user's category to the array
     initGifArray.push(userCategoryToAdd.val().trim());
 
-    // TODO: update DOM with new array contents (hint: completely clear the div then re-pop)
-
+    // update DOM with new array contents: completely clear the div then re-pop
     $("#button-holder").empty();
+    // reset button index
     buttonIndex = 0;
+    // create buttons
     createButtons(initGifArray);
     // clear text box
     userCategoryToAdd.val("");
   } else {
+    // if there's not text, pop an alert even though they suck.
     alert("Please enter a new category");
   }
 });
 
 // click handler for category buttons
 $(document).on("click", ".gif-category-button", function() {
+  testConsole();
   console.log(
     "You clicked the button with text of",
     initGifArray[$(this).attr("data-button-id")]
   );
-  testConsole();
+  // ajax request to giphy
+  var queryString = initGifArray[$(this).attr("data-button-id")];
+  var queryURL =
+    "https://api.giphy.com/v1/gifs/search?api_key=0MeKcZzr4rYFyl6HLR40UbBaf8f9rv9A&limit=10&q=" +
+    queryString;
+
+  $.ajax({
+    url: queryURL,
+    method: "GET"
+  }).then(function(response) {
+    // Iterate through response.data array to place urls in above arrays
+    $.each(response.data, function(i) {
+      var staticImageUrl = response.data[i].images.original_still.url;
+      var animatedImageUrl = response.data[i].images.original.url;
+
+      var staticImage = $("<img>");
+      staticImage.addClass("gif-option");
+      staticImage.attr("src", staticImageUrl);
+      staticImage.attr("data-gif-url", animatedImageUrl);
+      staticImage.attr("data-gif-index", gifIndex);
+      $("#gif-holder").prepend(staticImage);
+      i++;
+      gifIndex++;
+      // staticUrls.push(staticImageUrl);
+      // animatedUrls.push(animatedImageUrl);
+    });
+  });
+});
+
+// click handler for individual gifs
+
+$(document).on("click", ".gif-option", function() {
+  var gurl = $(this).attr("src", $(this).data("gif-url"));
+  console.log(gurl);
 });
